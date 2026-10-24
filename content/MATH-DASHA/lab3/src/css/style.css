@@ -1,0 +1,47 @@
+body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+td {
+    text-align: center;
+    background-color: #2a2a2a;
+    border: 1px solid #444444;
+    padding: 15px;
+    width: 25px;
+}
+
+#game-table {
+    width: 100%;
+    height: 90vh;
+    border-collapse: separate;
+    border-spacing: 10px;
+    margin: 0 auto;
+}
+
+.row-top, 
+.row-bottom {
+    height: 22%;
+}
+
+.row-middle {
+    height: 56%;
+}
+
+.main-cell {
+    width: 50%;
+    background-color: #3a3a3a;
+    border: 1px solid #00ffcc;
+}
+
+#game-table td a {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.main-cell h2 img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
