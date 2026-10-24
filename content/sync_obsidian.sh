@@ -1,30 +1,39 @@
 #!/bin/bash
 
-# Переходим в папку, где лежит сам скрипт (корень репозитория Obsidian)
+# Переходим в корень репозитория (там, где папка .git и папка content)
 cd "$(dirname "$0")"
 
-# Добавляем все изменения в индекс git
+# Добавляем абсолютно все изменения в индекс гит
 git add -A
 
-# Собираем уникальные имена измененных папок/файлов верхнего уровня
-# Исключаем служебные файлы squatz или самого гита (например, .gitignore)
-CHANGED_PLACES=$(git diff --cached --name-only | awk -F/ '{print $1}' | grep -v '^\.' | sort -u | paste -sd ", " -)
+# Вычисляем папку с наибольшим количеством изменений внутри content/
+# 1. Смотрим только файлы, измененные в папке content/
+# 2. Исключаем папку с картинками content/src и сам скрипт синхронизации
+# 3. Если файл лежит прямо в корне content/ (например, index.md), пишем "content"
+# 4. Если лежит в подпапке (например, content/OS-NETWORK/Cisco), берем имя этой подпапки (OS-NETWORK)
+# 5. Считаем упоминания, сортируем по убыванию и берем лидера
+MAIN_DIR=$(git diff --cached --name-only | grep '^content/' | grep -vE '(content/src/|sync_obsidian\.sh)' | awk -F/ '{
+    if ($2 ~ /\.md$/ || $2 == "index.md" || $2 == "kek.md") {
+        print "content"
+    } else if ($2 != "") {
+        print $2
+    }
+}' | sort | uniq -c | sort -nr | head -n1 | awk '{print $2}')
 
-# Если изменений нет, просто выходим
-if [ -z "$CHANGED_PLACES" ]; then
-    echo "Нет изменений для отправки."
-    exit 0
+# Если изменений в content/ не обнаружено (например, вы правили только конфиги самого Quartz)
+if [ -z "$MAIN_DIR" ]; then
+    MAIN_DIR="quartz-system"
 fi
 
-# Формируем дату и время
-CURRENT_TIME=$(date "+%Y-%m-%d %H:%M")
+# Получаем текущее время в формате ДД.ММ.ГГ ЧЧ:ММ
+CURRENT_TIME=$(date "+%d.%m.%y %H:%M")
 
-# Объединяем дату и места работы в текст коммита
-COMMIT_MSG="Sync: $CURRENT_TIME [$CHANGED_PLACES]"
+# Собираем заголовок коммита
+COMMIT_MSG="Sync: $MAIN_DIR $CURRENT_TIME"
 
-echo "Фиксируем изменения: $COMMIT_MSG"
+echo "Отправка изменений: $COMMIT_MSG"
 
-# Коммитим и отправляем на GitHub Pages
+# Фиксируем изменения и пушим в ветку master
 git commit -m "$COMMIT_MSG"
 git push origin master
 
