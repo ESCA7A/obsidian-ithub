@@ -26,5 +26,5 @@ echo "Фиксируем изменения: $COMMIT_MSG"
 
 # Коммитим и отправляем на GitHub Pages
 git commit -m "$COMMIT_MSG"
-git push origin main
+git push origin master
 
